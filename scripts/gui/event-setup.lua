@@ -79,7 +79,7 @@ end
 --- Recreate any GUIs that were saved while open, to ensure proper functioning.
 --- Must be called once, on the first available tick, and then removed.
 local function restore()
-  for player_index, sc_id in pairs(global.open_sc_ids or {}) do
+  for player_index, sc_id in pairs(storage.open_sc_ids or {}) do
     game.get_player(player_index).opened = nil
     open({
       entity = This.runtime:combinators()[sc_id].input,

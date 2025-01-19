@@ -10,7 +10,7 @@ local Mod = {
   -- Must be set as the earliest possible time, as virtually all other framework parts use this.
   NAME = nil,
 
-  --- Name of the field in `global` to store framework persistent runtime data.
+  --- Name of the field in `storage` to store framework persistent runtime data.
   STORAGE = "framework",
 
   --- @see Settings

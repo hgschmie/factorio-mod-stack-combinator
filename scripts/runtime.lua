@@ -115,11 +115,11 @@ end
 --- Find and register all existing stack combinators on the map
 -- @tparam boolean force_update Recreate the StaCo registry from scratch?
 function Runtime:combinators(force_update)
-  if (global.combinators) and (not force_update) and (self.update_queue) then
-    return global.combinators
+  if (storage.combinators) and (not force_update) and (self.update_queue) then
+    return storage.combinators
   end
 
-  global.combinators = {}
+  storage.combinators = {}
   self.update_queue = {}
   for _, surface in pairs(game.surfaces) do
     -- Find all SC outputs
@@ -153,19 +153,19 @@ function Runtime:combinators(force_update)
     end
   end
 
-  Mod.logger:log("Registry updated: " .. table_size(global.combinators) .. " stack combinator(s).")
+  Mod.logger:log("Registry updated: " .. table_size(storage.combinators) .. " stack combinator(s).")
   Runtime:rebuild_update_queue()
-  return global.combinators
+  return storage.combinators
 end
 
 --- Register an existing stack combinator
 -- @tparam StaCo Static combinator to register.
 function Runtime:register_sc(sc)
-  if (not global.combinators) then
-    global.combinators = {}
+  if (not storage.combinators) then
+    storage.combinators = {}
   end
-  if (not global.combinators[sc.id]) or (not global.combinators[sc.id].run) then
-    global.combinators[sc.id] = sc
+  if (not storage.combinators[sc.id]) or (not storage.combinators[sc.id].run) then
+    storage.combinators[sc.id] = sc
   end
   sc:debug_log("Combinator registered.")
   return sc
@@ -174,7 +174,7 @@ end
 --- Unregister a no longer existing stack combinator.
 -- @tparam StaCo Stack combinator to unregister
 function Runtime:unregister_sc(sc)
-  global.combinators[sc.id] = nil
+  storage.combinators[sc.id] = nil
   sc:debug_log("Combinator unregistered.")
 end
 
@@ -182,12 +182,12 @@ end
 function Runtime:rebuild_update_queue()
   Mod.logger:debug("Rebuilding update queue...")
   self.update_queue = {}
-  if (not global.combinators) then
+  if (not storage.combinators) then
     Mod.logger:debug("No combinators registered, update queue cleared.")
     return
   end
 
-  for _, sc in pairs(global.combinators) do
+  for _, sc in pairs(storage.combinators) do
     table.insert(self.update_queue, sc.id)
   end
   Mod.logger:debug("Update queue rebuilt.")
