@@ -2,7 +2,7 @@
 --- Define the main StaCo entity prototypes
 ----------------------------------------------------------------------------------------------------
 
-local StaCo = require('scripts/staco/staco')
+local StaCo = require('scripts.staco.staco')
 
 ----------------------------------------------------------------------------------------------------
 

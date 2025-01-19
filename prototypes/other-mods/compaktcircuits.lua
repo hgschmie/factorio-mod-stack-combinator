@@ -1,6 +1,6 @@
 local table = require('stdlib.utils.table')
 
-local StaCo = require('scripts/staco/staco')
+local StaCo = require('scripts.staco.staco')
 
 if (mods['compaktcircuit']) then
     local empty_sprite = {

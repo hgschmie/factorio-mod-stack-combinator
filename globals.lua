@@ -12,12 +12,12 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- Framework
-Mod = require('framework/mod')
+Mod = require('framework.mod')
 Mod:init('stack-combinator')
 Mod.logger.MOD_TAG = '[img=item/stack-combinator]'
 
 -- Mod
-This = require('scripts/this')
+This = require('scripts.this')
 This:init()
 
 ----------------------------------------------------------------------------------------------------

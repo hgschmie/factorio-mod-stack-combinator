@@ -1,4 +1,4 @@
-local runtime = require('framework/runtime')
+local runtime = require('framework.runtime')
 
 ----------------------------------------------------------------------------------------------------
 
@@ -28,11 +28,11 @@ function Mod:init(mod_name)
         error("Can't initialize mod without a name.")
     end
     self.NAME = mod_name
-    self.settings = require('framework/settings')
-    self.logger = require('framework/logger')
+    self.settings = require('framework.settings')
+    self.logger = require('framework.logger')
     if (script) then
         self.runtime = runtime
-        require('framework/event-setup'):register_all()
+        require('framework.event-setup'):register_all()
     end
 end
 

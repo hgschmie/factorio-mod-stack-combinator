@@ -9,7 +9,7 @@
 local _serpent = serpent
 local _table = require('stdlib.utils.table')
 
-local GuiInputOp = require('scripts/gui/gui-input-op')
+local GuiInputOp = require('scripts.gui.gui-input-op')
 
 --- Boolean settings stored as bits in the combinator's second_constant
 local Flags = {

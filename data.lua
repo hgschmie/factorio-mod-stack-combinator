@@ -4,9 +4,9 @@ require('globals')
 --- Data phase 1
 ----------------------------------------------------------------------------------------------------
 
-require('prototypes/entities')
-require('prototypes/items')
+require('prototypes.entities')
+require('prototypes.items')
 
 ----------------------------------------------------------------------------------------------------
 
-require('prototypes/other-mods/compaktcircuits.lua')
+require('prototypes.other-mods.compaktcircuits.lua')

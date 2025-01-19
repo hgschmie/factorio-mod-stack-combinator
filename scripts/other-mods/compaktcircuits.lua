@@ -1,5 +1,5 @@
 local events = require('stdlib.event.event')
-local StaCoConfig = require('scripts/staco/staco-config')
+local StaCoConfig = require('scripts.staco.staco-config')
 
 ----------------------------------------------------------------------------------------------------
 --- # Support for Compakt Circuits
