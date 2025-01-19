@@ -1,6 +1,17 @@
 --------------------------------------------------------------------------------
 --- Main stack combinator class
 --------------------------------------------------------------------------------
+---@class StaCo
+---@field NAME string
+---@field PACKED_NAME string
+---@field SEARCH_NAMES string
+---@field MATCH_NAMES table<string, boolean>
+---@field Output StaCoOutput
+---@field Config StaCoConfig
+---@field id number?
+---@field input LuaEntity?
+---@field output LuaEntity?
+---@field config StaCoConfig?
 local StaCo = {
     --[[ Constants ]]
     NAME = 'stack-combinator',

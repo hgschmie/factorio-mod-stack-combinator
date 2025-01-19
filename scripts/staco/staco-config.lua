@@ -17,6 +17,7 @@ local Flags = {
     WAGON_STACKS = 2,
 }
 
+---@class StaCoConfig
 local StaCoConfig = {
     --- Static combinator that this configuration is for
     sc = nil,
@@ -38,8 +39,8 @@ local StaCoConfig = {
 }
 
 --- Instantiate a configuration object for a stack combinator
--- @tparam StaCo Stack combinator that this configuration is for
--- @treturn StaCoConfig Created configuration object
+-- @param sc StaCo Stack combinator that this configuration is for
+-- @return StaCoConfig Created configuration object
 function StaCoConfig.create(sc)
     local config = { sc = sc }
     setmetatable(config, { __index = StaCoConfig })

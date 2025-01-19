@@ -12,7 +12,7 @@ local StackCombinatorEvents = {
 
 --- Creation
 local function create(ev)
-    local input = (ev.created_entity or ev.destination or ev.entity)
+    local input = (ev.entity or ev.destination or ev.entity)
     local sc = This.StaCo.created(input)
     This.runtime:register_sc(sc)
     if (This.runtime.update_queue) then
@@ -104,8 +104,8 @@ function StackCombinatorEvents.register_all()
     -- Config change
     events.register(defines.events.on_runtime_mod_setting_changed, cfg_update)
     -- Creation
-    events.register(defines.events.on_built_entity, create, event_filter, 'created_entity')
-    events.register(defines.events.on_robot_built_entity, create, event_filter, 'created_entity')
+    events.register(defines.events.on_built_entity, create, event_filter, 'entity')
+    events.register(defines.events.on_robot_built_entity, create, event_filter, 'entity')
     events.register(defines.events.on_entity_cloned, create, event_filter, 'destination')
     events.register(defines.events.script_raised_built, create, event_filter)
     events.register(defines.events.script_raised_revive, create, event_filter)

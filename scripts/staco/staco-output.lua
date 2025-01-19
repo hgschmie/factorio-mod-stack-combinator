@@ -1,6 +1,7 @@
 --------------------------------------------------------------------------------
 --- # Constructor for the stack combinator output entity
 --------------------------------------------------------------------------------
+---@class StaCoOutput
 local StackCombinatorOutput = {
     --[[ Constants ]]
     NAME = 'stack-combinator-output',
@@ -18,10 +19,11 @@ function StackCombinatorOutput.determine_name(input)
 end
 
 --- Create and connect the output combinator for an SC
--- @tparam StackCombinator sc The SC object for which this output is created.
--- @treturn LuaEntity The output combinator attached to the given SC input.
+---@param sc StaCo The SC object for which this output is created.
+---@return LuaEntity The output combinator attached to the given SC input.
 function StackCombinatorOutput.create(sc)
     local input = sc.input
+    assert(input)
     local output_name = StackCombinatorOutput.determine_name(input)
 
     local output = input.surface.create_entity {
@@ -32,6 +34,8 @@ function StackCombinatorOutput.create(sc)
         raise_built = false,
         create_built_effect_smoke = false
     }
+
+    assert(output)
     output.destructible = false
     output.operable = false
 
