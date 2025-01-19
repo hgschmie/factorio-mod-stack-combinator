@@ -2,6 +2,10 @@
 --- # Constructor for the stack combinator output entity
 --------------------------------------------------------------------------------
 ---@class StaCoOutput
+---@field NAME string
+---@field PACKED_NAME string
+---@field SEARCH_NAMES string
+---@field MATCH_NAMES table<string, boolean>
 local StackCombinatorOutput = {
     --[[ Constants ]]
     NAME = 'stack-combinator-output',

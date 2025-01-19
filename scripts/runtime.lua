@@ -67,7 +67,7 @@ end
 -- @tparam StackCombinator staco The StaCo to check.
 -- @tparam number total          Total amount of signals received by the StaCo.
 function Runtime:signal_overflow(staco, total)
-    local max = staco.output.prototype.item_slot_count
+    local max = 1000
     self.signal_overflows = self.signal_overflows or {}
 
     if (total > max) then
@@ -106,7 +106,9 @@ end
 --- Get the stack combinator data for an existing input entity
 function Runtime:sc(input)
     local sc = self:combinators()[input.unit_number]
-    if (not sc.run) then
+    if not sc then
+        sc = This.runtime:register_sc(This.StaCo.created(input, nil))
+    elseif not sc.run then
         sc = This.runtime:register_sc(This.StaCo.created(sc.input, sc.output))
     end
     return sc

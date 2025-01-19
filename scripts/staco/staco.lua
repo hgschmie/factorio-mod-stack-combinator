@@ -1,6 +1,9 @@
 --------------------------------------------------------------------------------
 --- Main stack combinator class
 --------------------------------------------------------------------------------
+
+local util = require('util')
+
 ---@class StaCo
 ---@field NAME string
 ---@field PACKED_NAME string
@@ -20,8 +23,8 @@ local StaCo = {
     MATCH_NAMES = { ['stack-combinator'] = true },
 
     --[[ Classes ]]
-    Output = require('staco-output'),
-    Config = require('staco-config'),
+    Output = require('scripts.staco.staco-output'),
+    Config = require('scripts.staco.staco-config'),
     --[[ Instance fields ]]
     --- Unique ID for this SC
     id = nil,
@@ -37,99 +40,112 @@ local StaCo = {
 function StaCo:run()
     if not (self.input.valid and self.output.valid) then return end
 
-    local output = self.output.get_control_behavior()
+    local output = self.output.get_control_behavior() --[[@as LuaConstantCombinatorControlBehavior ]]
+    assert(output)
+    assert(output.sections_count == 1)
+
+    local section = output.sections[1]
+    assert(section.type == defines.logistic_section_type.manual)
+
 
     if (self.input.status == defines.entity_status.no_power) then
         if (Mod.settings:runtime().empty_unpowered) then
-            output.parameters = nil
+            section.filters = {}
         end
         return
     end
 
-    local red = self.input.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.combinator_input)
-    local green = self.input.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.combinator_input)
+    local red = self.input.get_circuit_network(defines.wire_connector_id.combinator_input_red)
+    local green = self.input.get_circuit_network(defines.wire_connector_id.combinator_input_green)
 
     local op = self.config.operation
 
+    ---@type table<string, Signal>
     local result = {}
+
     if (self.config.merge_inputs) then
         local merged = {}
         for _, entry in pairs(red and red.signals or {}) do
             local key = entry.signal.type .. '-' .. entry.signal.name
-            merged[key] = entry
-            if (self.config.invert_red) then
-                merged[key].count = merged[key].count * -1
-            end
+            merged[key] = util.copy(entry)
+            merged[key].count = merged[key].count * self.config.invert_red and -1 or 1
         end
+
         for _, entry in pairs(green and green.signals or {}) do
             local key = entry.signal.type .. '-' .. entry.signal.name
+            local value = util.copy(entry)
+            value.count = value.count * self.config.invert_green and -1 or 1
+
             if (merged[key]) then
-                merged[key].count = merged[key].count + (entry.count * (self.config.invert_green and -1 or 1))
+                merged[key].count = merged[key].count + value.count
             else
-                merged[key] = entry
+                merged[key] = value
             end
         end
-        result = self:stackify({ signals = merged }, false, op, {}, context)
+
+        result = self:stackify(merged, false, op, {})
     else
-        result = self:stackify(red, self.config.invert_red, op, result)
-        result = self:stackify(green, self.config.invert_green, op, result)
+        result = self:stackify(red and red.signals, self.config.invert_red, op, result)
+        result = self:stackify(green and green.signals, self.config.invert_green, op, result)
     end
 
     local total = table_size(result)
     if (This.runtime:signal_overflow(self, total)) then
         --- Not enough signal space
-        output.parameters = nil
+        section.filters = {}
     else
-        local i = 1
         for _, entry in pairs(result) do
-            entry.index = i
-            i = i + 1
-            if (entry.count > 2147483647) then
-                entry.count = 2147483647
-            elseif (entry.count < -2147483647) then
-                entry.count = -2147483647
+            if (entry.count > (2 ^ 31 - 1)) then
+                entry.count = 2 ^ 31 - 1
+            elseif (entry.count < -2 ^ 32) then
+                entry.count = -2 ^ 32
             end
         end
 
-        output.parameters = result
+        local filters = {}
+
+        for _, signal in pairs(result) do
+            table.insert(filters, { value = signal.signal, min = signal.count })
+        end
+
+        section.filters = filters
     end
 end
 
 --- Convert circuit network signal values to their stack sizes
--- @tparam LuaCircuitNetwork input
--- @tparam Boolean invert Multiply all stackified signal values by -1?
--- @tparam Int op Operation to perform
--- @param[opt] result Already processed signals from the other wire, if any
-function StaCo:stackify(input, invert, operation, result, context)
-    if (not input or not input.signals) then
-        return result or {}
-    end
+---@param input (Signal[])?
+---@param invert boolean
+---@param operation number
+---@param result table<string, Signal>
+---@return  table<string, Signal>
+function StaCo:stackify(input, invert, operation, result)
+    if not input then return result or {} end
     local nonItems = Mod.settings:runtime().non_item_signals
 
     local wagon_stacks = { cargo = nil, fluid = nil }
     if (self.config.wagon_stacks) then
-        for _, entry in pairs(input.signals) do
+        for _, entry in pairs(input) do
             local entity = prototypes.entity[entry.signal.name]
-            if (not entity) then goto continue end
+            if entity and entity.valid then
+                local cargo_stacks = entity.type == 'cargo-wagon' and entity.get_inventory_size(defines.inventory.cargo_wagon)
+                if (cargo_stacks) then
+                    cargo_stacks = cargo_stacks * entry.count
+                    wagon_stacks.cargo = cargo_stacks + (wagon_stacks.cargo or 0)
+                end
 
-            local cargo_stacks = entity.type == 'cargo-wagon' and entity.get_inventory_size(defines.inventory.cargo_wagon)
-            if (cargo_stacks) then
-                cargo_stacks = cargo_stacks * entry.count
-                wagon_stacks.cargo = cargo_stacks + (wagon_stacks.cargo or 0)
+                local fluid_stack = entity.type == 'fluid-wagon' and entity.fluid_capacity
+                if (fluid_stack) then
+                    fluid_stack = fluid_stack * entry.count
+                    wagon_stacks.fluid = fluid_stack + (wagon_stacks.fluid or 0)
+                end
             end
-
-            local fluid_stack = entity.type == 'fluid-wagon' and entity.fluid_capacity
-            if (fluid_stack) then
-                fluid_stack = fluid_stack * entry.count
-                wagon_stacks.fluid = fluid_stack + (wagon_stacks.fluid or 0)
-            end
-
-            ::continue::
         end
     end
 
-    for _, entry in pairs(input.signals) do
+    for _, entry in pairs(input) do
         local name = entry.signal.name
+        assert(name)
+
         local value = entry.count
         local type = entry.signal.type
         local process = (type == 'item' or nonItems == 'pass' or nonItems == 'invert')
@@ -184,13 +200,13 @@ function StaCo:stackify(input, invert, operation, result, context)
 end
 
 --- Create a StackCombinator instance for a placed SC entity
--- @tparam LuaEntity input In-game combinator entity
--- @tparam[opt] LuaEntity output In-game output combinator entity if one exists
+---@param input LuaEntity In-game combinator entity
+-- @param output LuaEntity? In-game output combinator entity if one exists
 function StaCo.created(input, output)
-    if not (input and StaCo.MATCH_NAMES[input.name]) then
+    if not (input and input.valid and StaCo.MATCH_NAMES[input.name]) then
         error('Tried to configure ' .. input.name .. ' as a stack combinator.')
     end
-    if (output and not StaCo.Output.MATCH_NAMES[output.name]) then
+    if (output and output.valid and not StaCo.Output.MATCH_NAMES[output.name]) then
         error('Tried to configure ' .. output.name .. ' as a stack combinator output.')
     end
 
@@ -222,18 +238,15 @@ end
 function StaCo:connect()
     if not (self.input and self.input.valid) then return end
     if not (self.output and self.output.valid) then return end
-    self.input.connect_neighbour {
-        wire = defines.wire_type.red,
-        target_entity = self.output,
-        source_circuit_id = defines.circuit_connector_id.combinator_output,
-        target_circuit_id = defines.circuit_connector_id.constant_combinator
-    }
-    self.input.connect_neighbour {
-        wire = defines.wire_type.green,
-        target_entity = self.output,
-        source_circuit_id = defines.circuit_connector_id.combinator_output,
-        target_circuit_id = defines.circuit_connector_id.constant_combinator
-    }
+
+    local input_connectors = self.input.get_wire_connectors(true)
+    local output_connectors = self.output.get_wire_connectors(true)
+
+    input_connectors[defines.wire_connector_id.combinator_output_red].connect_to(output_connectors[defines.wire_connector_id.circuit_red], false,
+        defines.wire_origin.script)
+    input_connectors[defines.wire_connector_id.combinator_output_green].connect_to(output_connectors[defines.wire_connector_id.circuit_green], false,
+    defines.wire_origin.script)
+
     self:debug_log('Output connected to input.')
 end
 

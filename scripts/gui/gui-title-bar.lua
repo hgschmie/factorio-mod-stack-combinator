@@ -40,7 +40,7 @@ function GuiTitleBar:create(sc, parent)
     self.close_button = title_bar.add {
         type = 'sprite-button',
         style = 'frame_action_button',
-        sprite = 'utility/close_white',
+        sprite = 'utility/close_black',
         hovered_sprite = 'utility/close_black',
         clicked_sprite = 'utility/close_black'
     }
