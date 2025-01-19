@@ -2,13 +2,15 @@
 --- # Technology required to build stack combinators ---
 ----------------------------------------------------------------------------------------------------
 
+local util = require('util')
+
 local parent = data.raw['technology']['circuit-network']
 
 local tech = {
     type = 'technology',
     name = 'stack-combinator',
     prerequisites = { parent.name },
-    unit = table.deepcopy(parent.unit),
+    unit = util.copy(parent.unit),
     icons = util.technology_icon_constant_stack_size('__base__/graphics/technology/circuit-network.png'),
     effects = {
         {

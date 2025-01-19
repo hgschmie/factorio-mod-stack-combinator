@@ -9,4 +9,4 @@ require('prototypes.items')
 
 ----------------------------------------------------------------------------------------------------
 
-require('prototypes.other-mods.compaktcircuits.lua')
+require('prototypes.other-mods.compaktcircuits')

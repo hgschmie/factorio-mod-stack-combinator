@@ -1,3 +1,5 @@
+local util = require('util')
+
 local table = require('stdlib.utils.table')
 
 local StaCo = require('scripts.staco.staco')
@@ -9,7 +11,7 @@ if (mods['compaktcircuit']) then
         height = 1,
     }
 
-    local sc = table.deepcopy(data.raw['arithmetic-combinator'][StaCo.NAME])
+    local sc = util.copy(data.raw['arithmetic-combinator'][StaCo.NAME])
 
     -- PrototypeBase
     sc.name = StaCo.PACKED_NAME
@@ -48,7 +50,7 @@ if (mods['compaktcircuit']) then
     sc.collision_box = nil
     sc.selectable_in_game = false
 
-    local sc_output = table.deepcopy(data.raw['constant-combinator'][StaCo.Output.NAME])
+    local sc_output = util.copy(data.raw['constant-combinator'][StaCo.Output.NAME])
 
     -- PrototypeBase
     sc_output.name = StaCo.Output.PACKED_NAME

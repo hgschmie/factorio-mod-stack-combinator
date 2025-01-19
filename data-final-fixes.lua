@@ -7,4 +7,4 @@ require('prototypes.recipe')
 
 ----------------------------------------------------------------------------------------------------
 
-require('prototypes.other-mods.nullius.lua')
+require('prototypes.other-mods.nullius')
