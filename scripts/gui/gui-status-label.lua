@@ -1,4 +1,4 @@
-local table = require('__stdlib__/stdlib/utils/table')
+local table = require('stdlib.utils.table')
 
 ----------------------------------------------------------------------------------------------------
 --- # Entity status indicator of the stack combinator GUI

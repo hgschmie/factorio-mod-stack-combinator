@@ -14,7 +14,7 @@ function This:init()
     self.runtime = require("scripts/runtime")
     self.gui = require("scripts/gui/gui")
 
-    local events = require('__stdlib__/stdlib/event/event')
+    local events = require('stdlib.event.event')
     events.on_load(function()
       self.runtime:rebuild_update_queue()
     end)

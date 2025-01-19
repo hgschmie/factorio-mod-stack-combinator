@@ -1,4 +1,4 @@
-local events = require('__stdlib__/stdlib/event/event')
+local events = require('stdlib.event.event')
 local StaCoConfig = require("scripts/staco/staco-config")
 
 ----------------------------------------------------------------------------------------------------

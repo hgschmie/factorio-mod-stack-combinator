@@ -1,4 +1,4 @@
-local table = require('__stdlib__/stdlib/utils/table')
+local table = require('stdlib.utils.table')
 
 if (mods["nullius"]) then
   log("Nullius mod detected, adjusting tech & recipe accordingly.")

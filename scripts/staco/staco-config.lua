@@ -7,7 +7,7 @@
 --------------------------------------------------------------------------------
 -- Global imports
 local _serpent = serpent
-local _table = require('__stdlib__/stdlib/utils/table')
+local _table = require('stdlib.utils.table')
 
 local GuiInputOp = require("scripts/gui/gui-input-op")
 
