@@ -2,6 +2,11 @@
 --- # Input (configuration)
 --------------------------------------------------------------------------------
 
+---@class staco.GuiInput
+---@field red LuaGuiElement?
+---@field green LuaGuiElement?
+---@field merge_inputs LuaGuiElement?
+---@field wagon_stacks LuaGuiElement?
 local GuiInput = {
     red = nil,
     green = nil,
@@ -9,6 +14,8 @@ local GuiInput = {
     wagon_stacks = nil,
 }
 
+---@param sc StaCo
+---@param parent LuaGuiElement
 function GuiInput:create(sc, parent)
     local row = parent.add {
         type = 'table',
@@ -46,6 +53,7 @@ function GuiInput:create(sc, parent)
         state = sc.config.invert_green,
         caption = { '', { 'gui.invert-wire', '[item=green-wire]' }, ' [img=info]' }
     }
+
     GuiInput.green.style.horizontally_squashable = false
 
     -- Second row of options

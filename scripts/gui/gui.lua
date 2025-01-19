@@ -10,17 +10,17 @@ local Gui = {
 
     elements = {
         window = nil,
-        title_bar = require('gui-title-bar'),
-        status = require('gui-status-label'),
-        preview = require('gui-preview'),
-        input = require('gui-input'),
-        input_op = require('gui-input-op'),
-        output = require('gui-output'),
+        title_bar = require('scripts.gui.gui-title-bar'),
+        status = require('scripts.gui.gui-status-label'),
+        preview = require('scripts.gui.gui-preview'),
+        input = require('scripts.gui.gui-input'),
+        input_op = require('scripts.gui.gui-input-op'),
+        output = require('scripts.gui.gui-output'),
         input_network = {},
         output_network = {},
     }
 }
-local GuiSignalDisplay = require('gui-circuit-signals')
+local GuiSignalDisplay = require('scripts.gui.gui-circuit-signals')
 setmetatable(Gui.elements.input_network, { __index = GuiSignalDisplay })
 setmetatable(Gui.elements.output_network, { __index = GuiSignalDisplay })
 
@@ -40,7 +40,12 @@ function Gui:tick()
 end
 
 --- Create and show the the GUI
+---@param sc StaCo
+---@param player LuaPlayer
 function Gui:create(sc, player)
+    -- player.opened = sc.input
+    -- if true then return end
+
     local window = player.gui.screen.add {
         type = 'frame',
         direction = 'vertical',
@@ -71,7 +76,7 @@ function Gui:create(sc, player)
 
     contents.add {
         type = 'label',
-        style = 'heading_3_label',
+        style = 'heading_2_label',
         caption = { '', { 'gui.config' } },
     }
 

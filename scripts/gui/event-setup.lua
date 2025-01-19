@@ -58,9 +58,12 @@ end
 
 --- Show the GUI when user opens the combinator
 local function open(ev)
+    local player = game.get_player(ev.player_index)
+    assert(player)
+
     This.gui:create(
         This.runtime:sc(ev.entity),
-        game.get_player(ev.player_index)
+        player
     )
 
     config {}

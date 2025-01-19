@@ -4,6 +4,11 @@ local table = require('stdlib.utils.table')
 --- # Entity status indicator of the stack combinator GUI
 ----------------------------------------------------------------------------------------------------
 
+---@class staco.GuiStatusLabel
+---@field STATUS_SPRITES (table<defines.entity_status, string>)?
+---@field STATUS_NAMES (table<defines.entity_status, string>)?
+---@field indicator LuaGuiElement?
+---@field text LuaGuiElement?
 local GuiStatusLabel = {
     STATUS_SPRITES = nil,
     STATUS_NAMES = nil,
@@ -13,6 +18,7 @@ local GuiStatusLabel = {
 }
 
 --- Update status indicator on every tick
+---@param sc StaCo
 function GuiStatusLabel:tick(sc)
     if (This.runtime.signal_overflows and This.runtime.signal_overflows[sc.id]) then
         self.indicator.sprite = 'utility/status_not_working'
@@ -25,12 +31,13 @@ function GuiStatusLabel:tick(sc)
 end
 
 --- Create the status indicator
+---@param sc StaCo
+---@param parent LuaGuiElement
 function GuiStatusLabel:create(sc, parent)
     self:init()
 
     local flow = parent.add {
         type = 'flow',
-        style = 'status_flow',
         direction = 'horizontal'
     }
     flow.style.vertical_align = 'center'

@@ -1,4 +1,5 @@
 local table = require('stdlib.utils.table')
+local Event = require('stdlib.event.event')
 
 ----------------------------------------------------------------------------------------------------
 
@@ -88,5 +89,18 @@ function Settings:player(reload)
 end
 
 ----------------------------------------------------------------------------------------------------
+
+local function reload_configuration()
+    Mod.settings:runtime(true)
+    Mod.settings:player(true)
+end
+
+local function register_events()
+    Event.on_configuration_changed(reload_configuration)
+    Event.on_event(defines.events.on_runtime_mod_setting_changed, reload_configuration)
+end
+
+Event.on_load(register_events)
+Event.on_init(register_events)
 
 return Settings

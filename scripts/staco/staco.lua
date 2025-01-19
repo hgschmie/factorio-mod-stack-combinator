@@ -36,6 +36,31 @@ local StaCo = {
     config = nil
 }
 
+---@param signal SignalID|SignalFilter
+---@return string key
+local function create_key(signal)
+    local type = signal.type or 'item'
+    local quality = signal.quality or 'normal'
+    local key = ('%s-%s-%s'):format(type, signal.name, quality)
+    return key
+end
+
+---@param signal Signal
+---@return LogisticFilter
+local function signal_to_logistic_filter(signal)
+    ---@type LogisticFilter
+    local filter = {
+        value = {
+            type = signal.signal.type or 'item',
+            name = signal.signal.name,
+            quality = signal.signal.quality or 'normal',
+        },
+        min = signal.count,
+    }
+
+    return filter
+end
+
 --- Main combinator logic, process inputs into stackified output
 function StaCo:run()
     if not (self.input.valid and self.output.valid) then return end
@@ -60,24 +85,25 @@ function StaCo:run()
 
     local op = self.config.operation
 
-    ---@type table<string, Signal>
+    ---@type table<string, LogisticFilter>
     local result = {}
 
     if (self.config.merge_inputs) then
+        ---@type table<string, LogisticFilter>
         local merged = {}
         for _, entry in pairs(red and red.signals or {}) do
-            local key = entry.signal.type .. '-' .. entry.signal.name
-            merged[key] = util.copy(entry)
-            merged[key].count = merged[key].count * self.config.invert_red and -1 or 1
+            local key = create_key(entry.signal)
+            merged[key] = signal_to_logistic_filter(entry)
+            merged[key].min = merged[key].min * (self.config.invert_red and -1 or 1)
         end
 
         for _, entry in pairs(green and green.signals or {}) do
-            local key = entry.signal.type .. '-' .. entry.signal.name
-            local value = util.copy(entry)
-            value.count = value.count * self.config.invert_green and -1 or 1
+            local key = create_key(entry.signal)
+            local value = signal_to_logistic_filter(entry)
+            value.min = value.min * (self.config.invert_green and -1 or 1)
 
             if (merged[key]) then
-                merged[key].count = merged[key].count + value.count
+                merged[key].min = merged[key].min + value.min
             else
                 merged[key] = value
             end
@@ -95,17 +121,17 @@ function StaCo:run()
         section.filters = {}
     else
         for _, entry in pairs(result) do
-            if (entry.count > (2 ^ 31 - 1)) then
-                entry.count = 2 ^ 31 - 1
-            elseif (entry.count < -2 ^ 32) then
-                entry.count = -2 ^ 32
+            if (entry.min > (2 ^ 31 - 1)) then
+                entry.min = 2 ^ 31 - 1
+            elseif (entry.min < -2 ^ 32) then
+                entry.min = -2 ^ 32
             end
         end
 
         local filters = {}
 
-        for _, signal in pairs(result) do
-            table.insert(filters, { value = signal.signal, min = signal.count })
+        for _, filter in pairs(result) do
+            table.insert(filters, filter)
         end
 
         section.filters = filters
@@ -116,8 +142,8 @@ end
 ---@param input (Signal[])?
 ---@param invert boolean
 ---@param operation number
----@param result table<string, Signal>
----@return  table<string, Signal>
+---@param result table<string, LogisticFilter>
+---@return  table<string, LogisticFilter>
 function StaCo:stackify(input, invert, operation, result)
     if not input then return result or {} end
     local nonItems = Mod.settings:runtime().non_item_signals
@@ -143,11 +169,14 @@ function StaCo:stackify(input, invert, operation, result)
     end
 
     for _, entry in pairs(input) do
-        local name = entry.signal.name
+        local filter = signal_to_logistic_filter(entry)
+
+        local name = filter.value.name
         assert(name)
 
-        local value = entry.count
-        local type = entry.signal.type
+        local value = filter.min
+        assert(value)
+        local type = filter.value.type
         local process = (type == 'item' or nonItems == 'pass' or nonItems == 'invert')
         local entity = prototypes.entity[name]
         if (self.config.wagon_stacks and entity) then
@@ -188,11 +217,14 @@ function StaCo:stackify(input, invert, operation, result)
             end
         end
 
-        if (result[name]) then
-            result[name].count = result[name].count + value
+        local key = create_key(filter.value)
+
+        if (result[key]) then
+            result[key].min = result[key].min + value
         else
             if (process) then
-                result[name] = { signal = entry.signal, count = value }
+                result[key] = filter
+                result[key].min = value
             end
         end
     end
@@ -242,19 +274,10 @@ function StaCo:connect()
     local input_connectors = self.input.get_wire_connectors(true)
     local output_connectors = self.output.get_wire_connectors(true)
 
-    input_connectors[defines.wire_connector_id.combinator_output_red].connect_to(output_connectors[defines.wire_connector_id.circuit_red], false,
-        defines.wire_origin.script)
-    input_connectors[defines.wire_connector_id.combinator_output_green].connect_to(output_connectors[defines.wire_connector_id.circuit_green], false,
-    defines.wire_origin.script)
+    input_connectors[defines.wire_connector_id.combinator_output_red].connect_to(output_connectors[defines.wire_connector_id.circuit_red], false)
+    input_connectors[defines.wire_connector_id.combinator_output_green].connect_to(output_connectors[defines.wire_connector_id.circuit_green], false)
 
     self:debug_log('Output connected to input.')
-end
-
---- In-game entity rotated
-function StaCo:rotated()
-    -- Rotate output as well
-    self:debug_log('Input (may have been) rotated, ensuring output direction matches input.')
-    self.output.direction = self.input.direction
 end
 
 function StaCo:moved()

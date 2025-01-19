@@ -2,6 +2,11 @@
 --- # Mathematical operation selector of the stack combinator GUI
 --------------------------------------------------------------------------------
 
+---@class staco.GuiInputOp
+---@field selector LuaGuiElement?
+---@field description LuaGuiElement?
+---@field description_keys string[]
+---@field item_names string[]
 local GuiInputOp = {
     selector = nil,
     description = nil,
@@ -25,6 +30,8 @@ local GuiInputOp = {
     }
 }
 
+---@param sc StaCo
+---@param parent LuaGuiElement
 function GuiInputOp:create(sc, parent)
     parent = parent.add {
         type = 'flow',

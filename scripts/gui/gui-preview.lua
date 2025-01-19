@@ -4,6 +4,8 @@
 
 local GuiPreview = {}
 
+---@param sc StaCo
+---@param parent LuaGuiElement
 function GuiPreview:create(sc, parent)
     local ep_frame = parent.add {
         type = 'frame',

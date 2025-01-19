@@ -26,15 +26,6 @@ local function register()
             end
         )
 
-        events.register('dolly-rotate-rectangle', function(ev)
-            -- Figuring out which entity was being rotated would require accessing PD's game data etc., so
-            -- instead let's just ensure *all* StaCos are lined up with their outputs
-            for _, sc in pairs(storage.combinators) do
-                local moved_sc = moved { moved_entity = sc.input }
-                moved_sc:rotated()
-            end
-        end)
-
         -- Log that we've registered
         events.register(defines.events.on_player_joined_game, function()
             Mod.logger:debug('Picker Dollies detected, move & rotation handlers registered.')

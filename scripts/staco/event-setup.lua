@@ -24,17 +24,9 @@ end
 local function pasted(ev)
     if (ev.source and ev.destination and This.StaCo.MATCH_NAMES[ev.source.name]) then
         local to = This.runtime:sc(ev.destination)
-        -- Factorio now pops up the output after pasting setings, even if the rotation of input didn't actually change.
-        -- Calling the standard rotation handler seems to fix this.
-        to:rotated()
         -- Update SC's config cache
         to.config = StaCoConfig.create(to)
     end
-end
-
---- Rotation
-local function rotate(ev)
-    This.runtime:sc(ev.entity):rotated()
 end
 
 --- Individual removal.
@@ -111,7 +103,6 @@ function StackCombinatorEvents.register_all()
     events.register(defines.events.script_raised_revive, create, event_filter)
     -- Rotation & settings pasting
     events.register(defines.events.on_entity_settings_pasted, pasted)
-    events.register(defines.events.on_player_rotated_entity, rotate, event_filter)
     -- Removal
     events.register(defines.events.on_player_mined_entity, remove, event_filter)
     events.register(defines.events.on_robot_mined_entity, remove, event_filter)

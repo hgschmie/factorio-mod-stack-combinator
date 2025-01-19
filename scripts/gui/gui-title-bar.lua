@@ -6,14 +6,18 @@ local StaCo = require('scripts.staco.staco')
 
 --------------------------------------------------------------------------------
 
+---@class staco.GuiTitleBar
+---@field close_button LuaGuiElement
 local GuiTitleBar = {
     close_button = nil,
 }
 
-
+---@param sc StaCo
+---@param parent LuaGuiElement
 function GuiTitleBar:create(sc, parent)
     local title_bar = parent.add {
         type = 'flow',
+        style = 'frame_header_flow',
         direction = 'horizontal'
     }
     title_bar.drag_target = parent
@@ -40,7 +44,7 @@ function GuiTitleBar:create(sc, parent)
     self.close_button = title_bar.add {
         type = 'sprite-button',
         style = 'frame_action_button',
-        sprite = 'utility/close_black',
+        sprite = 'utility/close',
         hovered_sprite = 'utility/close_black',
         clicked_sprite = 'utility/close_black'
     }
