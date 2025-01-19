@@ -6,7 +6,7 @@ local events = require('stdlib.event.event')
 
 ----------------------------------------------------------------------------------------------------
 
-local EventSetup = { }
+local EventSetup = {}
 
 function EventSetup:register_all()
 end

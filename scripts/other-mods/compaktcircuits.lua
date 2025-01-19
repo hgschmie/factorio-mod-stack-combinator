@@ -1,12 +1,12 @@
 local events = require('stdlib.event.event')
-local StaCoConfig = require("scripts/staco/staco-config")
+local StaCoConfig = require('scripts/staco/staco-config')
 
 ----------------------------------------------------------------------------------------------------
 --- # Support for Compakt Circuits
 ----------------------------------------------------------------------------------------------------
 
 local function cc_get_info(entity)
-    assert(entity and entity.valid, "stack combinator " .. (entity and entity.unit_number) or '<unknown entity>' .. " is not valid")
+    assert(entity and entity.valid, 'stack combinator ' .. (entity and entity.unit_number) or '<unknown entity>' .. ' is not valid')
 
     return {
         parameters = entity.get_control_behavior().parameters,
@@ -33,7 +33,7 @@ local function cc_create_packed_entity(info, surface, position, force)
         table.insert(This.runtime.update_queue, sc.id)
     end
 
-    Mod.logger:debug(string.format("Called cc_create_packed_entity(%s, %s, %s, %s)", info, surface, position, force))
+    Mod.logger:debug(string.format('Called cc_create_packed_entity(%s, %s, %s, %s)', info, surface, position, force))
     return packed_entity
 end
 
@@ -55,17 +55,16 @@ local function cc_create_entity(info, surface, force)
         table.insert(This.runtime.update_queue, sc.id)
     end
 
-    Mod.logger:debug(string.format("Called cc_create_entity(%s, %s, %s)", info, surface, force))
+    Mod.logger:debug(string.format('Called cc_create_entity(%s, %s, %s)', info, surface, force))
 end
 
 ----------------------------------------------------------------------------------------------------
 
 local function register(event)
+    if (remote.interfaces['compaktcircuit']) then
+        Mod.logger:debug('Compakt Circuits detected, adding support.')
 
-    if (remote.interfaces["compaktcircuit"]) then
-        Mod.logger:debug("Compakt Circuits detected, adding support.")
-
-        remote.call("compaktcircuit", "add_combinator", {
+        remote.call('compaktcircuit', 'add_combinator', {
             name = This.StaCo.NAME,
             packed_names = { This.StaCo.PACKED_NAME, This.StaCo.Output.PACKED_NAME },
             interface_name = This.StaCo.NAME,
@@ -79,9 +78,9 @@ local function register(event)
 
         -- update the various search and match constants to cover packed entities as well
         This.StaCo.SEARCH_NAMES = { This.StaCo.NAME, This.StaCo.PACKED_NAME }
-        This.StaCo.MATCH_NAMES = { [ This.StaCo.NAME ] = true, [This.StaCo.PACKED_NAME] = true }
+        This.StaCo.MATCH_NAMES = { [This.StaCo.NAME] = true, [This.StaCo.PACKED_NAME] = true }
         This.StaCo.Output.SEARCH_NAMES = { This.StaCo.Output.NAME, This.StaCo.Output.PACKED_NAME }
-        This.StaCo.Output.MATCH_NAMES = { [ This.StaCo.Output.NAME ] = true, [This.StaCo.Output.PACKED_NAME] = true }
+        This.StaCo.Output.MATCH_NAMES = { [This.StaCo.Output.NAME] = true, [This.StaCo.Output.PACKED_NAME] = true }
     end
 end
 
