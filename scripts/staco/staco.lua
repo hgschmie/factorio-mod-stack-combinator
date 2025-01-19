@@ -109,7 +109,7 @@ function StaCo:stackify(input, invert, operation, result, context)
     local wagon_stacks = { cargo = nil, fluid = nil }
     if (self.config.wagon_stacks) then
         for _, entry in pairs(input.signals) do
-            local entity = game.entity_prototypes[entry.signal.name]
+            local entity = prototypes.entity[entry.signal.name]
             if (not entity) then goto continue end
 
             local cargo_stacks = entity.type == 'cargo-wagon' and entity.get_inventory_size(defines.inventory.cargo_wagon)
@@ -133,14 +133,14 @@ function StaCo:stackify(input, invert, operation, result, context)
         local value = entry.count
         local type = entry.signal.type
         local process = (type == 'item' or nonItems == 'pass' or nonItems == 'invert')
-        local entity = game.entity_prototypes[name]
+        local entity = prototypes.entity[name]
         if (self.config.wagon_stacks and entity) then
             process = (type == 'fluid' or (entity.type ~= 'cargo-wagon' and entity.type ~= 'fluid-wagon'))
         end
         local multiplier = (invert and (type == 'item' or nonItems == 'invert')) and -1 or 1
 
         if (process) then
-            local stack = (type == 'item' and (game.item_prototypes[name].stack_size or 1) * (wagon_stacks.cargo or 1)) or 1
+            local stack = (type == 'item' and (prototypes.item[name].stack_size or 1) * (wagon_stacks.cargo or 1)) or 1
             stack = (type == 'fluid' and (wagon_stacks.fluid or 1)) or stack
             local op = operation
             if (op == 1) then
